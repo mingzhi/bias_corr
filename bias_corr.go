@@ -35,7 +35,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	popChan := readPops(*input)
-	resChan := make(chan Result)
+	resChan := make(chan Result, 20)
 	done := make(chan bool)
 	for i := 0; i < *ncpu; i++ {
 		go func() {
@@ -84,7 +84,7 @@ type ByValue struct{ Tubles }
 func (s ByValue) Less(i, j int) bool { return s.Tubles[i].value < s.Tubles[j].value }
 
 func readPops(file string) chan Pop {
-	c := make(chan Pop)
+	c := make(chan Pop, 20)
 	go func() {
 		defer close(c)
 		f, err := os.Open(file)
