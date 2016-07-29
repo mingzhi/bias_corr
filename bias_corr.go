@@ -24,8 +24,9 @@ type Pop struct {
 func main() {
 	input := kingpin.Flag("input", "input population simulation results").Required().String()
 	output := kingpin.Flag("output", "output").Required().String()
-	sampleSize := kingpin.Flag("sample_size", "sample size").Default("10").Int()
-	clusterSize := kingpin.Flag("cluster_size", "cluster size").Default("2").Int()
+	smallSize := kingpin.Flag("small_cluster", "small cluster size").Default("5").Int()
+	largeSize := kingpin.Flag("large_cluster", "large cluster size").Default("50").Int()
+	clusterNum := kingpin.Flag("num_cluster", "number of clusters").Default("1").Int()
 	ncpu := kingpin.Flag("ncpu", "number of cpus").Default("1").Int()
 	maxLen := kingpin.Flag("maxl", "max len of correlations").Default("100").Int()
 	bias := kingpin.Flag("bias", "bias sampling").Default("false").Bool()
@@ -40,7 +41,7 @@ func main() {
 	for i := 0; i < *ncpu; i++ {
 		go func() {
 			for p := range popChan {
-				genomes := choose(p, *sampleSize, *clusterSize, *bias)
+				genomes := choose(p, *largeSize, *smallSize, *clusterNum, *bias)
 				results := calcCorr(genomes, *maxLen)
 				for _, r := range results {
 					resChan <- r
@@ -108,12 +109,12 @@ func readPops(file string) chan Pop {
 	return c
 }
 
-func choose(p Pop, sampleSize, clusterSize int, bias bool) (genomes []string) {
+func choose(p Pop, largeSize, smallSize, clusterNum int, bias bool) (genomes []string) {
 	if bias {
-		return biasChoose(p, sampleSize, clusterSize)
+		return biasChoose(p, largeSize, smallSize, clusterNum)
 	}
 
-	return randomChoose(p, 50)
+	return randomChoose(p, largeSize)
 }
 
 func randomChoose(p Pop, sampleSize int) (genomes []string) {
@@ -125,16 +126,16 @@ func randomChoose(p Pop, sampleSize int) (genomes []string) {
 	return
 }
 
-func biasChoose(p Pop, sampleSize, clusterSize int) (genomes []string) {
+func biasChoose(p Pop, largeSize, smallSize, clusterNum int) (genomes []string) {
 	clusters := []int{}
-	for i := 0; i < clusterSize; i++ {
-		clusters = append(clusters, sampleSize)
+	for i := 0; i < clusterNum; i++ {
+		clusters = append(clusters, smallSize)
 	}
-	clusters = append(clusters, 50)
+	clusters = append(clusters, largeSize)
 
 	indices := []int{}
 	for k := 0; k < len(clusters); k++ {
-		sampleSize = clusters[k]
+		sampleSize := clusters[k]
 		central := rand.Intn(len(p.Genomes))
 		distances := calcDistances(p, central)
 		tubles := make(Tubles, len(distances))
