@@ -39,6 +39,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 	length := len(genomes[0])
 
 	totals := make([]float64, maxl)
+	ks := 0.0
 	for i := 0; i < len(subsArr); i++ {
 		for j := i + 1; j < len(subsArr); j++ {
 			allSubs := removeDuplicateSubs(subsArr[i], subsArr[j])
@@ -61,6 +62,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 			xbar := float64(totalSubs) / float64(length)
 			ybar := xbar
 			xbarybar := xbar * ybar
+			ks += xbar
 
 			for lag := 0; lag < maxl; lag++ {
 				v := float64(xy[lag])/float64(length) - xbarybar
@@ -79,6 +81,8 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		res.Value = totals[i] / float64(n)
 		results = append(results, res)
 	}
+
+	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks / float64(n)})
 
 	return
 }
