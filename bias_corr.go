@@ -30,6 +30,7 @@ func main() {
 	ncpu := kingpin.Flag("ncpu", "number of cpus").Default("1").Int()
 	maxLen := kingpin.Flag("maxl", "max len of correlations").Default("100").Int()
 	bias := kingpin.Flag("bias", "bias sampling").Default("false").Bool()
+	repeat := kingpin.Flag("repeat", "repeat").Default("10").Int()
 
 	kingpin.Parse()
 
@@ -41,10 +42,12 @@ func main() {
 	for i := 0; i < *ncpu; i++ {
 		go func() {
 			for p := range popChan {
-				genomes := choose(p, *largeSize, *smallSize, *clusterNum, *bias)
-				results := calcCorr(genomes, *maxLen)
-				for _, r := range results {
-					resChan <- r
+				for k := 0; k < *repeat; k++ {
+					genomes := choose(p, *largeSize, *smallSize, *clusterNum, *bias)
+					results := calcCorr(genomes, *maxLen)
+					for _, r := range results {
+						resChan <- r
+					}
 				}
 			}
 			done <- true
@@ -181,7 +184,7 @@ func calcDist(a, b string) float64 {
 }
 
 func calcCorr(genomes []string, maxl int) []Result {
-	results := calcCm(genomes, maxl)
+	results := calcCmSub(genomes, maxl)
 	return results
 }
 
