@@ -35,6 +35,62 @@ func (s BySubPos) Less(i, j int) bool {
 }
 
 func calcCm(genomes []string, maxl int) (results []Result) {
+	length := len(genomes[0])
+	subBuf := make([]float64, length)
+	cms := make([]float64, maxl)
+	d := 0.0
+	vd := 0.0
+
+	for i := 0; i < len(genomes); i++ {
+		for j := i + 1; j < len(genomes); j++ {
+			for k := 0; k < length; k++ {
+				if genomes[i][k] != genomes[j][k] {
+					subBuf[k] = 1.0
+				} else {
+					subBuf[k] = 0.0
+				}
+			}
+
+			var xbar, ybar float64
+			for l := 0; l < maxl; l++ {
+				xy := 0.0
+				for k := 0; k < length; k++ {
+					xy += subBuf[k] * subBuf[(k+l)%length]
+				}
+
+				xy /= float64(length)
+				if l == 0 {
+					xbar = xy
+					ybar = xy
+					d += xbar
+					vd += xbar * ybar
+				}
+
+				cms[l] += xy - xbar*ybar
+			}
+		}
+	}
+
+	n := len(genomes) * (len(genomes) - 1) / 2
+	for i := 0; i < maxl; i++ {
+		res := Result{}
+		res.Lag = i
+		res.N = n
+		res.Type = "Cm"
+		res.Value = cms[i] / float64(n)
+		results = append(results, res)
+	}
+
+	ks := d / float64(n)
+	vard := vd/float64(n) - ks*ks
+
+	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
+	results = append(results, Result{Lag: 0, N: n, Type: "Vd", Value: vard})
+
+	return
+}
+
+func calcCmSub(genomes []string, maxl int) (results []Result) {
 	subsArr := identifySubs(genomes)
 	length := len(genomes[0])
 
