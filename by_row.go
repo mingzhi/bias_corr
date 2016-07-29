@@ -51,7 +51,9 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 			for k := 0; k < len(positions); k++ {
 				for h := 0; h < len(positions); h++ {
 					lag := (positions[h] - positions[k] + length) % length
-					xy[lag]++
+					if lag < len(xy) {
+						xy[lag]++
+					}
 				}
 			}
 
