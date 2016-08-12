@@ -183,10 +183,38 @@ func calcDist(a, b string) float64 {
 	return float64(d) / float64(len(a))
 }
 
-func calcCorr(genomes []string, maxl int) []Result {
-	results := calcCmSub(genomes, maxl)
-	results = append(results, calcCs(genomes, maxl)...)
-	return results
+func calcCorr(genomes []string, maxl int) (results []Result) {
+	cms := calcCmSub(genomes, maxl)
+	css := calcCs(genomes, maxl)
+	results = append(results, cms...)
+	results = append(results, css...)
+
+	cm := make([]float64, maxl)
+	cs := make([]float64, maxl)
+	ns := make([]int, maxl)
+	for _, c := range cms {
+		if c.Type == "Cm" && c.Lag < maxl {
+			cm[c.Lag] = c.Value
+			ns[c.Lag] = c.N
+		}
+	}
+
+	for _, c := range css {
+		if c.Type == "Cs" && c.Lag < maxl {
+			cs[c.Lag] = c.Value
+		}
+	}
+
+	for i := 0; i < len(cm); i++ {
+		r := Result{}
+		r.Lag = i
+		r.N = ns[i]
+		r.Type = "Ct"
+		r.Value = cm[i] / cs[i]
+		results = append(results, r)
+	}
+
+	return
 }
 
 // collect averages correlation results.
