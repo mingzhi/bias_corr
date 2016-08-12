@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bitbucket.org/mingzhi/seqcorr/nuclcov"
+	"math"
 	"sort"
 )
 
@@ -32,6 +34,54 @@ type BySubPos struct{ Subs }
 // Less return true if the value at i is less than the value at j.
 func (s BySubPos) Less(i, j int) bool {
 	return s.Subs[i].Pos < s.Subs[j].Pos
+}
+
+func calcCs(genomes []string, maxl int) (results []Result) {
+	matrix := [][]*nuclcov.NuclCov{}
+	for _, genome := range genomes {
+		for i := 0; i < len(genome); i++ {
+			for j := i; j < len(genome) && j-i < maxl; j++ {
+				pos := i
+				lag := j - i
+				a := genome[i]
+				b := genome[j]
+				for len(matrix) <= pos {
+					matrix = append(matrix, []*nuclcov.NuclCov{})
+				}
+
+				for len(matrix[pos]) <= lag {
+					matrix[pos] = append(matrix[pos], nuclcov.New([]byte{'1', '2', '3', '4'}))
+				}
+
+				matrix[pos][lag].Add(a, b)
+			}
+		}
+	}
+
+	for lag := 0; lag < maxl; lag++ {
+		mc := NewMeanCov()
+		for i := 0; i < len(matrix); i++ {
+			if lag < len(matrix[i]) {
+				xy, xbar, ybar, n := matrix[i][lag].Cov()
+				if !math.IsNaN(xy) {
+					mc.Add(xy, xbar, ybar, n)
+				}
+			}
+		}
+
+		cs := mc.Mean.GetResult()
+		cr := mc.Cov.GetResult()
+		p2 := mc.MeanXY()
+		n := mc.Mean.GetN()
+
+		crRes := Result{Value: cr, Lag: lag, N: n, Type: "Cr"}
+		csRes := Result{Value: cs, Lag: lag, N: n, Type: "Cs"}
+		p2Res := Result{Value: p2, Lag: lag, N: n, Type: "P2"}
+
+		results = append(results, []Result{crRes, csRes, p2Res}...)
+	}
+
+	return
 }
 
 func calcCm(genomes []string, maxl int) (results []Result) {

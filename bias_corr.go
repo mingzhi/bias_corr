@@ -185,6 +185,7 @@ func calcDist(a, b string) float64 {
 
 func calcCorr(genomes []string, maxl int) []Result {
 	results := calcCmSub(genomes, maxl)
+	results = append(results, calcCs(genomes, maxl)...)
 	return results
 }
 
