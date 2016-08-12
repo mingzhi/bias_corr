@@ -211,7 +211,9 @@ func calcCorr(genomes []string, maxl int) (results []Result) {
 		r.N = ns[i]
 		r.Type = "Ct"
 		r.Value = cm[i] / cs[i]
-		results = append(results, r)
+		if !math.IsInf(r.Value, 0) && !math.IsNaN(r.Value) {
+			results = append(results, r)
+		}
 	}
 
 	return
