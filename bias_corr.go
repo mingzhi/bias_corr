@@ -185,10 +185,10 @@ func calcDist(a, b string) float64 {
 
 func calcCorr(genomes []string, maxl int) (results []Result) {
 	cms := calcCmSub(genomes, maxl)
-	css := calcCs(genomes, maxl)
+//	css := calcCs(genomes, maxl)
 	results = append(results, cms...)
-	results = append(results, css...)
-
+//	results = append(results, css...)
+/*
 	cm := make([]float64, maxl)
 	cs := make([]float64, maxl)
 	ns := make([]int, maxl)
@@ -215,7 +215,7 @@ func calcCorr(genomes []string, maxl int) (results []Result) {
 			results = append(results, r)
 		}
 	}
-
+*/
 	return
 }
 

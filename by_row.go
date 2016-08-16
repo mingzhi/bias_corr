@@ -137,6 +137,15 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
 	results = append(results, Result{Lag: 0, N: n, Type: "Vd", Value: vard})
 
+    for i := 0; i < maxl; i++ {
+        res := Result{}
+        res.Lag = i
+        res.N = n
+        res.Type = "Cm2"
+        res.Value = cms[i]/(float64(n) * ks)
+        results = append(results, res)
+    }
+
 	return
 }
 
@@ -196,6 +205,15 @@ func calcCmSub(genomes []string, maxl int) (results []Result) {
 	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
 	results = append(results, Result{Lag: 0, N: n, Type: "Vd", Value: vard})
 
+    for i := 0; i < maxl; i++ {
+        res := Result{}
+        res.Lag = i
+        res.N = n
+        res.Type = "Cm2"
+        res.Value = totals[i]/(float64(n) * ks)
+        results = append(results, res)
+    }
+ 
 	return
 }
 
