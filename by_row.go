@@ -89,6 +89,7 @@ func calcCmSub(genomes []string, maxl int) (results []Result) {
 	length := len(genomes[0])
 
 	totals := make([]float64, maxl)
+	totals2 := make([]float64, maxl)
 	d := 0.0
 	vd := 0.0
 	for i := 0; i < len(subsArr); i++ {
@@ -119,6 +120,9 @@ func calcCmSub(genomes []string, maxl int) (results []Result) {
 			for lag := 0; lag < maxl; lag++ {
 				v := float64(xy[lag])/float64(length) - xbarybar
 				totals[lag] += v
+				if xbar > 0 {
+					totals2[lag] += v / xbar
+				}
 			}
 		}
 	}
@@ -145,11 +149,7 @@ func calcCmSub(genomes []string, maxl int) (results []Result) {
 		res.Lag = i
 		res.N = n
 		res.Type = "Cm2"
-		if ks == 0 {
-			res.Value = 0
-		} else {
-			res.Value = totals[i] / (float64(n) * ks)
-		}
+		res.Value = totals2[i] / float64(n)
 		results = append(results, res)
 	}
 
