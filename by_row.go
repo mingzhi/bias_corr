@@ -88,7 +88,8 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 	length := len(genomes[0])
 	subBuf := make([]float64, length)
 	cms := make([]float64, maxl)
-	d := 0.0
+	cms2 := make([]float64, maxl)
+	ks := 0.0
 	vd := 0.0
 
 	for i := 0; i < len(genomes); i++ {
@@ -112,11 +113,16 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 				if l == 0 {
 					xbar = xy
 					ybar = xy
-					d += xbar
+					ks += xbar
 					vd += xbar * ybar
 				}
-
-				cms[l] += xy - xbar*ybar
+				cm := xy - xbar*ybar
+				cms[l] += cm
+				if xbar > 0 {
+					cms2[l] += cm / xbar
+				} else {
+					cms2[l] += 0
+				}
 			}
 		}
 	}
@@ -131,7 +137,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		results = append(results, res)
 	}
 
-	ks := d / float64(n)
+	ks /= float64(n)
 	vard := vd/float64(n) - ks*ks
 
 	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
@@ -142,11 +148,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		res.Lag = i
 		res.N = n
 		res.Type = "Cm2"
-		if ks == 0 {
-			res.Value = 0
-		} else {
-			res.Value = cms[i] / (float64(n) * ks)
-		}
+		res.Value = cms2[i] / float64(n)
 		results = append(results, res)
 	}
 
