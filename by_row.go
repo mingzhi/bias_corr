@@ -84,7 +84,7 @@ func calcCs(genomes []string, maxl int) (results []Result) {
 	return
 }
 
-func calcCmSub(genomes []string, maxl int) (results []Result) {
+func calcCm(genomes []string, maxl int) (results []Result) {
 	subsArr := identifySubs(genomes)
 	length := len(genomes[0])
 

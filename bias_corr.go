@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/alecthomas/kingpin"
@@ -19,6 +20,7 @@ type Pop struct {
 	FragLen                    int
 	Generation                 int
 	Genomes                    []string
+	Ranks                      [][]float64
 }
 
 func main() {
@@ -97,7 +99,13 @@ func readPops(file string) chan Pop {
 		}
 		defer f.Close()
 
-		decoder := json.NewDecoder(f)
+		r, err := gzip.NewReader(f)
+		if err != nil {
+			panic(err)
+		}
+		defer r.Close()
+
+		decoder := json.NewDecoder(r)
 		for {
 			var p Pop
 			if err := decoder.Decode(&p); err != nil {
@@ -163,59 +171,15 @@ func biasChoose(p Pop, largeSize, smallSize, clusterNum int) (genomes []string) 
 func calcDistances(p Pop, i int) []float64 {
 	distances := []float64{}
 	for j := 0; j < len(p.Genomes); j++ {
-		d := 0.0
-		if i != j {
-			d = calcDist(p.Genomes[i], p.Genomes[j])
-		}
-		distances = append(distances, d)
+		distances = append(distances, p.Ranks[i][j])
 	}
 
 	return distances
 }
 
-func calcDist(a, b string) float64 {
-	d := 0
-	for i := range a {
-		if a[i] != b[i] {
-			d++
-		}
-	}
-	return float64(d) / float64(len(a))
-}
-
 func calcCorr(genomes []string, maxl int) (results []Result) {
-	cms := calcCmSub(genomes, maxl)
-//	css := calcCs(genomes, maxl)
+	cms := calcCm(genomes, maxl)
 	results = append(results, cms...)
-//	results = append(results, css...)
-/*
-	cm := make([]float64, maxl)
-	cs := make([]float64, maxl)
-	ns := make([]int, maxl)
-	for _, c := range cms {
-		if c.Type == "Cm" && c.Lag < maxl {
-			cm[c.Lag] = c.Value
-			ns[c.Lag] = c.N
-		}
-	}
-
-	for _, c := range css {
-		if c.Type == "Cs" && c.Lag < maxl {
-			cs[c.Lag] = c.Value
-		}
-	}
-
-	for i := 0; i < len(cm); i++ {
-		r := Result{}
-		r.Lag = i
-		r.N = ns[i]
-		r.Type = "Ct"
-		r.Value = cm[i] / cs[i]
-		if !math.IsInf(r.Value, 0) && !math.IsNaN(r.Value) {
-			results = append(results, r)
-		}
-	}
-*/
 	return
 }
 
