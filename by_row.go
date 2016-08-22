@@ -120,9 +120,7 @@ func calcCmSub(genomes []string, maxl int) (results []Result) {
 			for lag := 0; lag < maxl; lag++ {
 				v := float64(xy[lag])/float64(length) - xbarybar
 				totals[lag] += v
-				if xbar > 0 {
-					totals2[lag] += v / xbar
-				}
+				totals2[lag] += float64(xy[lag]) / float64(length)
 			}
 		}
 	}
