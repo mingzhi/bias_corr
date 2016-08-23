@@ -4,27 +4,21 @@ import "math"
 
 // Calculator is a correlation calculator.
 type Calculator struct {
-	Input         chan Pop
-	Output        chan CorrResult
-	LargeSize     int
-	SmallSize     int
-	ClusterNumber int
-	MaxLen        int
-	Repeat        int
-	Bias          bool
+	Input    chan Pop
+	Output   chan CorrResult
+	Clusters []int
+	MaxLen   int
+	Repeat   int
 }
 
 // NewCalculator returns a new Calculator.
-func NewCalculator() *Calculator {
+func NewCalculator(clusters []int) *Calculator {
 	c := Calculator{}
 	c.Input = make(chan Pop)
 	c.Output = make(chan CorrResult)
-	c.LargeSize = 10
-	c.SmallSize = 1
-	c.ClusterNumber = 1
+	c.Clusters = clusters
 	c.MaxLen = 100
 	c.Repeat = 1
-	c.Bias = true
 	return &c
 }
 
@@ -35,14 +29,13 @@ func (c *Calculator) Calculate() {
 		defer close(resChan)
 		for p := range c.Input {
 			for k := 0; k < c.Repeat; k++ {
-				genomes := choose(p, c.LargeSize, c.SmallSize, c.ClusterNumber, c.Bias)
+				genomes := biasChoose(p, c.Clusters)
 				results := calcCorr(genomes, c.MaxLen)
 				for _, r := range results {
 					resChan <- r
 				}
 			}
 		}
-
 	}()
 
 	go func() {

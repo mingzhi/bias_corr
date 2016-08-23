@@ -5,30 +5,7 @@ import (
 	"sort"
 )
 
-func choose(p Pop, largeSize, smallSize, clusterNum int, bias bool) (genomes []string) {
-	if bias {
-		return biasChoose(p, largeSize, smallSize, clusterNum)
-	}
-
-	return randomChoose(p, largeSize)
-}
-
-func randomChoose(p Pop, sampleSize int) (genomes []string) {
-	for i := 0; i < sampleSize; i++ {
-		index := rand.Intn(p.Size)
-		genomes = append(genomes, p.Genomes[index])
-	}
-
-	return
-}
-
-func biasChoose(p Pop, largeSize, smallSize, clusterNum int) (genomes []string) {
-	clusters := []int{}
-	for i := 0; i < clusterNum; i++ {
-		clusters = append(clusters, smallSize)
-	}
-	clusters = append(clusters, largeSize)
-
+func biasChoose(p Pop, clusters []int) (genomes []string) {
 	indices := []int{}
 	for k := 0; k < len(clusters); k++ {
 		sampleSize := clusters[k]
