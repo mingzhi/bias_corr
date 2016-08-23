@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/mingzhi/seqcorr/nuclcov"
 	"math"
 	"sort"
+
+	"bitbucket.org/mingzhi/seqcorr/nuclcov"
 )
 
 type Result struct {
@@ -88,8 +89,8 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 	subsArr := identifySubs(genomes)
 	length := len(genomes[0])
 
-	totals := make([]float64, maxl)
-	totals2 := make([]float64, maxl)
+	cm := make([]float64, maxl)
+	cn := make([]float64, maxl)
 	d := 0.0
 	vd := 0.0
 	for i := 0; i < len(subsArr); i++ {
@@ -119,8 +120,10 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 
 			for lag := 0; lag < maxl; lag++ {
 				v := float64(xy[lag])/float64(length) - xbarybar
-				totals[lag] += v
-				totals2[lag] += float64(xy[lag]) / float64(length)
+				cm[lag] += v
+				if xbar > 0 {
+					cn[lag] = float64(xy[lag]) / float64(length) / xbar
+				}
 			}
 		}
 	}
@@ -132,7 +135,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		res.Lag = i
 		res.N = n
 		res.Type = "Cm"
-		res.Value = totals[i] / float64(n)
+		res.Value = cm[i] / float64(n)
 		results = append(results, res)
 	}
 
@@ -147,7 +150,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		res.Lag = i
 		res.N = n
 		res.Type = "Cm2"
-		res.Value = totals2[i] / float64(n)
+		res.Value = cn[i] / float64(n)
 		results = append(results, res)
 	}
 
