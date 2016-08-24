@@ -24,6 +24,7 @@ func main() {
 	repeat := kingpin.Flag("repeat", "repeat").Default("10").Int()
 	showProgress := kingpin.Flag("progress", "show progress").Default("false").Bool()
 	genomeLen := kingpin.Flag("genome_length", "genome length").Default("0").Int()
+	circularGenome := kingpin.Flag("circular_genome", "circular genome").Default("false").Bool()
 
 	kingpin.Parse()
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -33,6 +34,7 @@ func main() {
 	c.MaxLen = *maxLen
 	c.Repeat = *repeat
 	c.GenomeLen = *genomeLen
+	c.Circular = *circularGenome
 
 	popChan := readPops(*input, *numPop)
 	go func() {

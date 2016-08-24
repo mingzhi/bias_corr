@@ -10,6 +10,7 @@ type Calculator struct {
 	MaxLen    int
 	Repeat    int
 	GenomeLen int
+	Circular  bool
 }
 
 // NewCalculator returns a new Calculator.
@@ -37,7 +38,7 @@ func (c *Calculator) Calculate() {
 						c.MaxLen = c.GenomeLen - 1
 					}
 				}
-				results := calcCorr(genomes, c.MaxLen)
+				results := calcCorr(genomes, c.MaxLen, c.Circular)
 				for _, r := range results {
 					resChan <- r
 				}
@@ -93,8 +94,8 @@ type CorrResult struct {
 	C int
 }
 
-func calcCorr(genomes []string, maxl int) (results []Result) {
-	cms := calcCm(genomes, maxl)
+func calcCorr(genomes []string, maxl int, circular bool) (results []Result) {
+	cms := calcCm(genomes, maxl, circular)
 	results = append(results, cms...)
 	return
 }

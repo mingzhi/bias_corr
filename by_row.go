@@ -85,7 +85,7 @@ func calcCs(genomes []string, maxl int) (results []Result) {
 	return
 }
 
-func calcCm(genomes []string, maxl int) (results []Result) {
+func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 	cm := make([]float64, maxl)
 	p2 := make([]float64, maxl)
 	d := 0.0
@@ -105,6 +105,9 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 			for l := 0; l < maxl; l++ {
 				xy[l] = 0
 				for k := 0; k < len(a); k++ {
+					if !circular && k+l >= len(a) {
+						break
+					}
 					x := diff[k]
 					y := diff[(k+l)%len(a)]
 					if x == false && y == false {
