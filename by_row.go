@@ -111,10 +111,14 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 						xy[l]++
 					}
 				}
+
 				if l == 0 {
 					xbar = xy[l] / float64(len(a))
 					ybar = xbar
+					d += xbar
+					vd += xbar * ybar
 				}
+
 				v := xy[l] / float64(len(a))
 				cm[l] += v - xbar*ybar
 				p2[l] += v
