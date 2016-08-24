@@ -90,7 +90,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 	length := len(genomes[0])
 
 	cm := make([]float64, maxl)
-	cn := make([]float64, maxl)
+	p2 := make([]float64, maxl)
 	d := 0.0
 	vd := 0.0
 	for i := 0; i < len(subsArr); i++ {
@@ -122,7 +122,7 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 				v := float64(xy[lag])/float64(length) - xbarybar
 				cm[lag] += v
 				if xbar > 0 {
-					cn[lag] = float64(xy[lag]) / float64(length) / xbar
+					p2[lag] = float64(xy[lag]) / float64(length)
 				}
 			}
 		}
@@ -149,8 +149,8 @@ func calcCm(genomes []string, maxl int) (results []Result) {
 		res := Result{}
 		res.Lag = i
 		res.N = n
-		res.Type = "Cm2"
-		res.Value = cn[i] / float64(n)
+		res.Type = "P2"
+		res.Value = p2[i] / float64(n)
 		results = append(results, res)
 	}
 
