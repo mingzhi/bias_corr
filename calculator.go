@@ -4,11 +4,12 @@ import "math"
 
 // Calculator is a correlation calculator.
 type Calculator struct {
-	Input    chan Pop
-	Output   chan CorrResult
-	Clusters []int
-	MaxLen   int
-	Repeat   int
+	Input     chan Pop
+	Output    chan CorrResult
+	Clusters  []int
+	MaxLen    int
+	Repeat    int
+	GenomeLen int
 }
 
 // NewCalculator returns a new Calculator.
@@ -30,6 +31,12 @@ func (c *Calculator) Calculate() {
 		for p := range c.Input {
 			for k := 0; k < c.Repeat; k++ {
 				genomes := biasChoose(p, c.Clusters)
+				if c.GenomeLen > 0 && c.GenomeLen < len(genomes[0]) {
+					genomes = chopGenomes(genomes, c.GenomeLen)
+					if c.MaxLen > c.GenomeLen {
+						c.MaxLen = c.GenomeLen - 1
+					}
+				}
 				results := calcCorr(genomes, c.MaxLen)
 				for _, r := range results {
 					resChan <- r
@@ -47,6 +54,18 @@ func (c *Calculator) Calculate() {
 		}
 	}()
 
+}
+
+// chopGenomes
+func chopGenomes(genomes []string, length int) []string {
+	gs := []string{}
+	if length > len(genomes[0]) {
+		length = len(genomes[0])
+	}
+	for _, g := range genomes {
+		gs = append(gs, g[:length])
+	}
+	return gs
 }
 
 // getCorrResults extract correlation results.
