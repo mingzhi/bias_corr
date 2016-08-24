@@ -86,49 +86,44 @@ func calcCs(genomes []string, maxl int) (results []Result) {
 }
 
 func calcCm(genomes []string, maxl int) (results []Result) {
-	subsArr := identifySubs(genomes)
-	length := len(genomes[0])
-
 	cm := make([]float64, maxl)
 	p2 := make([]float64, maxl)
 	d := 0.0
 	vd := 0.0
-	for i := 0; i < len(subsArr); i++ {
-		for j := i + 1; j < len(subsArr); j++ {
-			allSubs := removeDuplicateSubs(subsArr[i], subsArr[j])
-			positions := []int{}
-			for _, s := range allSubs {
-				positions = append(positions, s.Pos)
+
+	xy := make([]float64, maxl)
+	diff := make([]bool, len(genomes[0]))
+	for i := range genomes {
+		a := genomes[i]
+		for j := i + 1; j < len(genomes); j++ {
+			b := genomes[j]
+			for k := 0; k < len(a); k++ {
+				diff[k] = a[k] == b[k]
 			}
 
-			xy := make([]int, maxl)
-			for k := 0; k < len(positions); k++ {
-				for h := 0; h < len(positions); h++ {
-					lag := (positions[h] - positions[k] + length) % length
-					if lag < len(xy) {
-						xy[lag]++
+			var xbar, ybar float64
+			for l := 0; l < maxl; l++ {
+				xy[l] = 0
+				for k := 0; k < len(a); k++ {
+					x := diff[k]
+					y := diff[(k+l)%len(a)]
+					if x == false && y == false {
+						xy[l]++
 					}
 				}
-			}
-
-			totalSubs := len(positions)
-			xbar := float64(totalSubs) / float64(length)
-			ybar := xbar
-			xbarybar := xbar * ybar
-			d += xbar
-			vd += xbarybar
-
-			for lag := 0; lag < maxl; lag++ {
-				v := float64(xy[lag])/float64(length) - xbarybar
-				cm[lag] += v
-				if xbar > 0 {
-					p2[lag] = float64(xy[lag]) / float64(length)
+				if l == 0 {
+					xbar = xy[l] / float64(len(a))
+					ybar = xbar
 				}
+				v := xy[l] / float64(len(a))
+				cm[l] += v - xbar*ybar
+				p2[l] += v
 			}
+
 		}
 	}
 
-	n := len(subsArr) * (len(subsArr) - 1) / 2
+	n := len(genomes) * (len(genomes) - 1) / 2
 
 	for i := 0; i < maxl; i++ {
 		res := Result{}
