@@ -7,11 +7,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/alecthomas/kingpin"
-	"github.com/cheggaaa/pb"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/alecthomas/kingpin"
+	"github.com/cheggaaa/pb"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 	numPop := kingpin.Flag("num_pop", "number of populations").Required().Int()
 	maxLen := kingpin.Flag("maxl", "max len of correlations").Default("100").Int()
 	repeat := kingpin.Flag("repeat", "repeat").Default("10").Int()
+	showProgress := kingpin.Flag("progress", "show progress").Default("false").Bool()
 
 	kingpin.Parse()
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -33,11 +35,18 @@ func main() {
 	popChan := readPops(*input, *numPop)
 	go func() {
 		defer close(c.Input)
-		bar := pb.StartNew(*numPop)
-		defer bar.Finish()
+
+		var bar *pb.ProgressBar
+		if *showProgress {
+			bar = pb.StartNew(*numPop)
+			defer bar.Finish()
+		}
+
 		for pop := range popChan {
 			c.Input <- pop
-			bar.Increment()
+			if *showProgress {
+				bar.Increment()
+			}
 		}
 	}()
 
