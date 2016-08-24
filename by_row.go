@@ -88,7 +88,6 @@ func calcCs(genomes []string, maxl int) (results []Result) {
 func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 	cm := make([]float64, maxl)
 	p2 := make([]float64, maxl)
-	pn := make([]float64, maxl)
 	d := 0.0
 	vd := 0.0
 
@@ -126,9 +125,6 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 				v := xy[l] / float64(len(a))
 				cm[l] += v - xbar*ybar
 				p2[l] += v
-				if xbar > 0 {
-					pn[l] += v / xbar
-				}
 			}
 
 		}
@@ -166,7 +162,7 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 			res.Lag = i
 			res.N = n
 			res.Type = "PN"
-			res.Value = pn[i] / float64(n)
+			res.Value = p2[i] / float64(n) / ks
 			results = append(results, res)
 		}
 	}
