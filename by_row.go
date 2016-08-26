@@ -144,6 +144,20 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 	ks := d / float64(n)
 	vard := vd/float64(n) - ks*ks
 
+	for i := 0; i < maxl; i++ {
+		res := Result{}
+		res.Lag = i
+		res.N = n
+		res.Type = "Cn"
+		if ks > 0 {
+			res.Value = cm[i] / float64(n) / ks
+		} else {
+			res.Value = 0
+		}
+
+		results = append(results, res)
+	}
+
 	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
 	results = append(results, Result{Lag: 0, N: n, Type: "Vd", Value: vard})
 
@@ -160,7 +174,7 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 		res := Result{}
 		res.Lag = i
 		res.N = n
-		res.Type = "PN"
+		res.Type = "Pn"
 		if ks == 0 {
 			res.Value = 0
 		} else {
