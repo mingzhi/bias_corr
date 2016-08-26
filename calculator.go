@@ -1,6 +1,7 @@
 package main
 
 import "math"
+import "runtime"
 
 // Calculator is a correlation calculator.
 type Calculator struct {
@@ -27,22 +28,33 @@ func NewCalculator(clusters []int) *Calculator {
 // Calculate calculate correlations.
 func (c *Calculator) Calculate() {
 	resChan := make(chan Result)
-	go func() {
-		defer close(resChan)
-		for p := range c.Input {
-			for k := 0; k < c.Repeat; k++ {
-				genomes := biasChoose(p, c.Clusters)
-				if c.GenomeLen > 0 && c.GenomeLen < len(genomes[0]) {
-					genomes = chopGenomes(genomes, c.GenomeLen)
-					if c.MaxLen > c.GenomeLen {
-						c.MaxLen = c.GenomeLen - 1
+	done := make(chan bool)
+	ncpu := runtime.GOMAXPROCS(0)
+	for i := 0; i < ncpu; i++ {
+		go func() {
+			for p := range c.Input {
+				for k := 0; k < c.Repeat; k++ {
+					genomes := biasChoose(p, c.Clusters)
+					if c.GenomeLen > 0 && c.GenomeLen < len(genomes[0]) {
+						genomes = chopGenomes(genomes, c.GenomeLen)
+						if c.MaxLen > c.GenomeLen {
+							c.MaxLen = c.GenomeLen - 1
+						}
+					}
+					results := calcCorr(genomes, c.MaxLen, c.Circular)
+					for _, r := range results {
+						resChan <- r
 					}
 				}
-				results := calcCorr(genomes, c.MaxLen, c.Circular)
-				for _, r := range results {
-					resChan <- r
-				}
 			}
+			done <- true
+		}()
+	}
+
+	go func() {
+		defer close(resChan)
+		for i := 0; i < ncpu; i++ {
+			<-done
 		}
 	}()
 

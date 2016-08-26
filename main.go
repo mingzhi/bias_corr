@@ -13,6 +13,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/cheggaaa/pb"
+	"runtime"
 )
 
 func main() {
@@ -25,9 +26,15 @@ func main() {
 	showProgress := kingpin.Flag("progress", "show progress").Default("false").Bool()
 	genomeLen := kingpin.Flag("genome_length", "genome length").Default("0").Int()
 	circularGenome := kingpin.Flag("circular_genome", "circular genome").Default("false").Bool()
+	ncpu := kingpin.Flag("ncpu", "number of CPUs for using").Default("0").Int()
 
 	kingpin.Parse()
 	rand.Seed(time.Now().UTC().UnixNano())
+
+	if *ncpu == 0 {
+		*ncpu = runtime.NumCPU()
+		runtime.GOMAXPROCS(*ncpu)
+	}
 
 	clusters := getClusters(*clusterStr)
 	c := NewCalculator(clusters)
