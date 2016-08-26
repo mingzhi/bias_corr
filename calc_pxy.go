@@ -119,8 +119,8 @@ func calcP4(genomes []string, maxl int, circular bool) (results []Result) {
 					continue
 				}
 				c := genomes[k]
-				for h := 0; k < len(genomes); h++ {
-					if h == k || h == j || h == i {
+				for h := 0; h < len(genomes); h++ {
+					if h == i || h == j || h == k {
 						continue
 					}
 					d := genomes[h]
