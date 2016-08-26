@@ -161,28 +161,6 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 	results = append(results, Result{Lag: 0, N: n, Type: "Ks", Value: ks})
 	results = append(results, Result{Lag: 0, N: n, Type: "Vd", Value: vard})
 
-	for i := 0; i < maxl; i++ {
-		res := Result{}
-		res.Lag = i
-		res.N = n
-		res.Type = "P2"
-		res.Value = p2[i] / float64(n)
-		results = append(results, res)
-	}
-
-	for i := 0; i < maxl; i++ {
-		res := Result{}
-		res.Lag = i
-		res.N = n
-		res.Type = "Pn"
-		if ks == 0 {
-			res.Value = 0
-		} else {
-			res.Value = p2[i] / float64(n) / ks
-		}
-		results = append(results, res)
-	}
-
 	return
 }
 

@@ -97,6 +97,14 @@ type CorrResult struct {
 func calcCorr(genomes []string, maxl int, circular bool) (results []Result) {
 	cms := calcCm(genomes, maxl, circular)
 	results = append(results, cms...)
+
+	p2s := calcP2(genomes, maxl, circular)
+	results = append(results, p2s...)
+	p3s := calcP3(genomes, maxl, circular)
+	results = append(results, p3s...)
+	p4s := calcP4(genomes, maxl, circular)
+	results = append(results, p4s...)
+
 	return
 }
 
