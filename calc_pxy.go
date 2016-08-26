@@ -70,7 +70,7 @@ func calcP3(genomes []string, maxl int, circular bool) (results []Result) {
 			b := genomes[j]
 			for k := 0; k < len(genomes); k++ {
 				if k == i || k == j {
-
+					continue
 				}
 				c := genomes[k]
 				for w := 0; w < len(ds1); w++ {
