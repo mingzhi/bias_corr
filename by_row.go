@@ -93,6 +93,7 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 
 	xy := make([]float64, maxl)
 	diff := make([]bool, len(genomes[0]))
+	n := 0
 	for i := range genomes {
 		a := genomes[i]
 		for j := i + 1; j < len(genomes); j++ {
@@ -126,11 +127,10 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 				cm[l] += v - xbar*ybar
 				p2[l] += v
 			}
-
+			n++
 		}
+		break
 	}
-
-	n := len(genomes) * (len(genomes) - 1) / 2
 
 	for i := 0; i < maxl; i++ {
 		res := Result{}
@@ -156,15 +156,17 @@ func calcCm(genomes []string, maxl int, circular bool) (results []Result) {
 		results = append(results, res)
 	}
 
-	if ks > 0 {
-		for i := 0; i < maxl; i++ {
-			res := Result{}
-			res.Lag = i
-			res.N = n
-			res.Type = "PN"
+	for i := 0; i < maxl; i++ {
+		res := Result{}
+		res.Lag = i
+		res.N = n
+		res.Type = "PN"
+		if ks == 0 {
+			res.Value = 0
+		} else {
 			res.Value = p2[i] / float64(n) / ks
-			results = append(results, res)
 		}
+		results = append(results, res)
 	}
 
 	return
