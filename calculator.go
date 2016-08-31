@@ -5,13 +5,14 @@ import "runtime"
 
 // Calculator is a correlation calculator.
 type Calculator struct {
-	Input     chan Pop
-	Output    chan CorrResult
-	Clusters  []int
-	MaxLen    int
-	Repeat    int
-	GenomeLen int
-	Circular  bool
+	Input      chan Pop
+	Output     chan CorrResult
+	Clusters   []int
+	MaxLen     int
+	Repeat     int
+	GenomeLen  int
+	Circular   bool
+	ByCoalTime bool
 }
 
 // NewCalculator returns a new Calculator.
@@ -34,7 +35,7 @@ func (c *Calculator) Calculate() {
 		go func() {
 			for p := range c.Input {
 				for k := 0; k < c.Repeat; k++ {
-					genomes := biasChoose(p, c.Clusters)
+					genomes := biasChoose(p, c.Clusters, c.ByCoalTime)
 					if c.GenomeLen > 0 && c.GenomeLen < len(genomes[0]) {
 						genomes = chopGenomes(genomes, c.GenomeLen)
 						if c.MaxLen > c.GenomeLen {

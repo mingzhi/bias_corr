@@ -5,12 +5,12 @@ import (
 	"sort"
 )
 
-func biasChoose(p Pop, clusters []int) (genomes []string) {
+func biasChoose(p Pop, clusters []int, byCoalTime bool) (genomes []string) {
 	indices := []int{}
 	for k := 0; k < len(clusters); k++ {
 		sampleSize := clusters[k]
 		central := rand.Intn(len(p.Genomes))
-		distances := calcDistances(p, central)
+		distances := calcDistances(p, central, byCoalTime)
 		tubles := make(Tubles, len(distances))
 		for i := range distances {
 			tubles[i] = Tuble{index: i, value: distances[i]}
@@ -30,13 +30,27 @@ func biasChoose(p Pop, clusters []int) (genomes []string) {
 	return
 }
 
-func calcDistances(p Pop, i int) []float64 {
+func calcDistances(p Pop, i int, byCoalTime bool) []float64 {
 	distances := []float64{}
 	for j := 0; j < len(p.Genomes); j++ {
-		distances = append(distances, p.Ranks[i][j])
+		if byCoalTime {
+			distances = append(distances, p.Ranks[i][j])
+		} else {
+			distances = append(distances, compareGenomes(p.Genomes[i], p.Genomes[j]))
+		}
 	}
 
 	return distances
+}
+
+func compareGenomes(a, b string) float64 {
+	total := 0
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			total++
+		}
+	}
+	return float64(total) / float64(len(a))
 }
 
 // Tuble stores index and value.

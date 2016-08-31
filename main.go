@@ -11,9 +11,10 @@ import (
 	"strconv"
 	"strings"
 
+	"runtime"
+
 	"github.com/alecthomas/kingpin"
 	"github.com/cheggaaa/pb"
-	"runtime"
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	genomeLen := kingpin.Flag("genome_length", "genome length").Default("0").Int()
 	circularGenome := kingpin.Flag("circular_genome", "circular genome").Default("false").Bool()
 	ncpu := kingpin.Flag("ncpu", "number of CPUs for using").Default("0").Int()
+	byCoalTime := kingpin.Flag("by_coal_time", "compare genome by coalescent time").Default("false").Bool()
 
 	kingpin.Parse()
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -42,6 +44,7 @@ func main() {
 	c.Repeat = *repeat
 	c.GenomeLen = *genomeLen
 	c.Circular = *circularGenome
+	c.ByCoalTime = *byCoalTime
 
 	popChan := readPops(*input, *numPop)
 	go func() {
