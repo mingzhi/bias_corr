@@ -13,6 +13,7 @@ type Calculator struct {
 	GenomeLen  int
 	Circular   bool
 	ByCoalTime bool
+	ByRandom   bool
 }
 
 // NewCalculator returns a new Calculator.
@@ -23,6 +24,7 @@ func NewCalculator(clusters []int) *Calculator {
 	c.Clusters = clusters
 	c.MaxLen = 100
 	c.Repeat = 1
+	c.ByRandom = false
 	return &c
 }
 
@@ -35,10 +37,15 @@ func (c *Calculator) Calculate() {
 		go func() {
 			for p := range c.Input {
 				p2mvs := []*MeanVar{}
-                clusters := biasChooseRank(p, c.Clusters[0], c.Repeat)
+				var clusters [][]string
+				if c.ByRandom {
+					clusters = randChooseClusters(p, c.Clusters[0], c.Repeat)
+				} else {
+					clusters = biasChooseRank(p, c.Clusters[0], c.Repeat)
+				}
+
 				for k := 0; k < c.Repeat; k++ {
-				//	genomes := biasChoose(p, c.Clusters, c.ByCoalTime)
-                    genomes := clusters[k]
+					genomes := clusters[k]
 					if c.GenomeLen > 0 && c.GenomeLen < len(genomes[0]) {
 						genomes = chopGenomes(genomes, c.GenomeLen)
 						if c.MaxLen > c.GenomeLen {
@@ -64,7 +71,7 @@ func (c *Calculator) Calculate() {
 					res.N = p2mvs[l].N
 					res.Value = p2mvs[l].Mean() / ks
 					resChan <- res
-                }
+				}
 			}
 			done <- true
 		}()
@@ -128,7 +135,7 @@ type CorrResult struct {
 func calcCorr(genomes []string, maxl int, circular bool) (results []Result) {
 	p2s := calcP2(genomes, maxl, circular)
 	results = append(results, p2s...)
-    
+
 	return
 }
 
