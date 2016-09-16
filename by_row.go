@@ -37,25 +37,26 @@ func (s BySubPos) Less(i, j int) bool {
 	return s.Subs[i].Pos < s.Subs[j].Pos
 }
 
-func calcCs(genomes []string, maxl int) (results []Result) {
+func calcCs(genomes []string, maxl int, circular bool) (results []Result) {
 	matrix := [][]*nuclcov.NuclCov{}
 	for _, genome := range genomes {
 		for i := 0; i < len(genome); i++ {
-			for j := i; j < len(genome) && j-i < maxl; j++ {
-				pos := i
-				lag := j - i
+			for len(matrix) <= i {
+				matrix = append(matrix, []*nuclcov.NuclCov{})
+			}
+			for lag := 0; lag < maxl; lag++ {
+				for len(matrix[i]) <= lag {
+					matrix[i] = append(matrix[i], nuclcov.New([]byte{'1', '2', '3', '4'}))
+				}
+				if !circular && i+lag >= len(genome) {
+					break
+				}
+				j := (i + lag) % len(genome)
 				a := genome[i]
 				b := genome[j]
-				for len(matrix) <= pos {
-					matrix = append(matrix, []*nuclcov.NuclCov{})
-				}
-
-				for len(matrix[pos]) <= lag {
-					matrix[pos] = append(matrix[pos], nuclcov.New([]byte{'1', '2', '3', '4'}))
-				}
-
-				matrix[pos][lag].Add(a, b)
+				matrix[i][lag].Add(a, b)
 			}
+
 		}
 	}
 

@@ -30,6 +30,45 @@ func biasChoose(p Pop, clusters []int, byCoalTime bool) (genomes []string) {
 	return
 }
 
+func biasChooseRank(p Pop, clusterSize int, num int) (clusters [][]string) {
+    totalTubles := Tubles{}
+    for i := 0; i < len(p.Genomes); i++ {
+        central := i
+        distances := calcDistances(p, central, true)
+        tubles := make(Tubles, len(distances))
+        for j := range distances {
+            tubles[j] = Tuble{index: j, value: distances[j]}
+        }
+        sort.Sort(ByValue{tubles})
+
+        totalDistance := 0.0
+        for k := 1; k < clusterSize; k++ {
+            totalDistance += tubles[k].value
+        }
+        
+        totalTubles = append(totalTubles, Tuble{index: i, value: totalDistance})
+    }
+    sort.Sort(ByValue{totalTubles})
+
+    for i := 0; i < num; i++ {
+        genomes := []string{}
+        central := totalTubles[i].index
+        tubles := Tubles{}
+        distances := calcDistances(p, central, true)
+        for j := range distances {
+            tubles = append(tubles, Tuble{index: j, value: distances[j]})
+        }
+        sort.Sort(ByValue{tubles})
+
+        for k := 0; k < clusterSize; k++ {
+            genomes = append(genomes, p.Genomes[tubles[k].index])
+        }
+        clusters = append(clusters, genomes)
+    }
+
+    return
+}
+
 func calcDistances(p Pop, i int, byCoalTime bool) []float64 {
 	distances := []float64{}
 	for j := 0; j < len(p.Genomes); j++ {
