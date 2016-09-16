@@ -14,6 +14,7 @@ type Calculator struct {
 	Circular   bool
 	ByCoalTime bool
 	ByRandom   bool
+	Mix        int
 }
 
 // NewCalculator returns a new Calculator.
@@ -25,6 +26,7 @@ func NewCalculator(clusters []int) *Calculator {
 	c.MaxLen = 100
 	c.Repeat = 1
 	c.ByRandom = false
+	c.Mix = 0
 	return &c
 }
 
@@ -42,6 +44,18 @@ func (c *Calculator) Calculate() {
 					clusters = randChooseClusters(p, c.Clusters[0], c.Repeat)
 				} else {
 					clusters = biasChooseRank(p, c.Clusters[0], c.Repeat)
+				}
+
+				if c.Mix > 0 && !c.ByRandom {
+					if c.Mix >= c.Clusters[0] {
+						c.Mix = c.Clusters[0] - 1
+					}
+					mixes := randChooseClusters(p, c.Mix, c.Repeat)
+					for k := 0; k < c.Repeat; k++ {
+						for j := 1; j < len(clusters[k]); j++ {
+							clusters[k][j] = mixes[k][j-1]
+						}
+					}
 				}
 
 				for k := 0; k < c.Repeat; k++ {

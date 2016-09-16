@@ -30,6 +30,7 @@ func main() {
 	ncpu := kingpin.Flag("ncpu", "number of CPUs for using").Default("0").Int()
 	byCoalTime := kingpin.Flag("by_coal_time", "compare genome by coalescent time").Default("false").Bool()
 	byRandom := kingpin.Flag("by_random", "choose clusters by random").Default("false").Bool()
+	mix := kingpin.Flag("mix", "mix random sequences").Default("0").Int()
 
 	kingpin.Parse()
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -47,6 +48,7 @@ func main() {
 	c.Circular = *circularGenome
 	c.ByCoalTime = *byCoalTime
 	c.ByRandom = *byRandom
+	c.Mix = *mix
 
 	popChan := readPops(*input, *numPop)
 	go func() {
