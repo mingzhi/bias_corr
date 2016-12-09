@@ -1,5 +1,26 @@
 package main
 
+func calcP00(ds1, ds2 []bool, maxl int, circular bool) []float64 {
+	pxy := make([]float64, maxl)
+	for l := 0; l < maxl; l++ {
+		n := 0
+		for i := 0; i < len(ds1); i++ {
+			if !circular && i+l >= len(ds1) {
+				break
+			}
+			x := ds1[i]
+			y := ds2[(i+l)%len(ds1)]
+			if x && y {
+				pxy[l]++
+			}
+			n++
+		}
+		pxy[l] /= float64(n)
+	}
+
+	return pxy
+}
+
 func calcPXY(ds1, ds2 []bool, maxl int, circular bool) []float64 {
 	pxy := make([]float64, maxl)
 	for l := 0; l < maxl; l++ {
@@ -24,6 +45,7 @@ func calcPXY(ds1, ds2 []bool, maxl int, circular bool) []float64 {
 func calcP2(genomes []string, maxl int, circular bool) (results []Result) {
 	ds := make([]bool, len(genomes[0]))
 	pxy := make([]float64, maxl)
+	p00 := make([]float64, maxl)
 	n := 0
 	for i := 0; i < len(genomes); i++ {
 		a := genomes[i]
@@ -33,8 +55,10 @@ func calcP2(genomes []string, maxl int, circular bool) (results []Result) {
 				ds[k] = a[k] == b[k]
 			}
 			xy := calcPXY(ds, ds, maxl, circular)
+			x0 := calcP00(ds, ds, maxl, circular)
 			for l := 0; l < maxl; l++ {
 				pxy[l] += xy[l]
+				p00[l] += x0[l]
 			}
 			n++
 		}
@@ -42,6 +66,7 @@ func calcP2(genomes []string, maxl int, circular bool) (results []Result) {
 
 	for l := 0; l < maxl; l++ {
 		pxy[l] /= float64(n)
+		p00[l] /= float64(n)
 	}
 
 	for i := 0; i < maxl; i++ {
@@ -50,6 +75,13 @@ func calcP2(genomes []string, maxl int, circular bool) (results []Result) {
 		res.N = n
 		res.Type = "P2"
 		res.Value = pxy[i]
+		results = append(results, res)
+
+		res = Result{}
+		res.Lag = i
+		res.N = n
+		res.Type = "P0"
+		res.Value = p00[i]
 		results = append(results, res)
 	}
 
