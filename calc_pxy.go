@@ -5,7 +5,7 @@ func calcPXY(ds1, ds2 []bool, maxl int, circular bool) []float64 {
 	for l := 0; l < maxl; l++ {
 		n := 0
 		for i := 0; i < len(ds1); i++ {
-			if circular && i+l >= len(ds1) {
+			if !circular && i+l >= len(ds1) {
 				break
 			}
 			x := ds1[i]
